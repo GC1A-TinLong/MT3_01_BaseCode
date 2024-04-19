@@ -7,13 +7,35 @@ const char kWindowTitle[] = "GC2A_08_チョウ_テンロウ_AL3";
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
-	Novice::Initialize(kWindowTitle, 1280, 720);
+	const int kWindowWidth = 1280;
+	const int kWindowHeight = 720;
+	Novice::Initialize(kWindowTitle, kWindowWidth, kWindowHeight);
 
-	
+	Vector3 rotate{};
+	Vector3 translate{};
+	Vector3 cameraPosition{ 0.0f,0.0f,0.0f };
+	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
+	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, cameraPosition);
+	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
+	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
+	Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+
+	const Vector3 kLocalVertics[3] = {
+		{640.0f,200.0f,0.1f},
+		{400.0f,500.0f,0.1f},
+		{800.0f,500.0f,0.1f},
+	};
+	Vector3 screenVertics[3]{};
+	for (uint32_t i = 0; i < 3; i++) {
+		Vector3 ndcVertex = Transform(kLocalVertics[i], worldViewProjectionMatrix);
+		screenVertics[i] = Transform(ndcVertex, viewportMatrix);
+	}
+
 
 	// キー入力結果を受け取る箱
-	char keys[256] = {0};
-	char preKeys[256] = {0};
+	char keys[256] = { 0 };
+	char preKeys[256] = { 0 };
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -36,7 +58,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
+		Novice::DrawTriangle(int(screenVertics[0].x), (int)screenVertics[0].y, int(screenVertics[1].x), int(screenVertics[1].y),
+			int(screenVertics[2].x), int(screenVertics[2].y), RED, kFillModeSolid);
 
+#ifdef _DEBUG
+		Novice::ScreenPrintf(0, 0, "0.x=%f", screenVertics[0].x);
+		Novice::ScreenPrintf(0, kRowHeight, "0.y=%f", screenVertics[0].y);
+		Novice::ScreenPrintf(0, kRowHeight * 2, "1.x=%f", screenVertics[1].x);
+		Novice::ScreenPrintf(0, kRowHeight * 3, "1.y=%f", screenVertics[1].y);
+		Novice::ScreenPrintf(0, kRowHeight * 4, "2.x=%f", screenVertics[2].x);
+		Novice::ScreenPrintf(0, kRowHeight * 5, "2.y=%f", screenVertics[2].y);
+
+#endif // DEBUG
 
 		///
 		/// ↑描画処理ここまで
