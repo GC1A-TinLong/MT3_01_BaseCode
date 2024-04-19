@@ -13,7 +13,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector3 rotate{};
 	Vector3 translate{};
-	Vector3 cameraPosition{ 0.0f,0.0f,0.0f };
+	Vector3 cameraPosition{ 0.5f,0.5f,0.5f };
 	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
 	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, cameraPosition);
 	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -22,9 +22,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
 	const Vector3 kLocalVertics[3] = {
-		{640.0f,200.0f,0.1f},
-		{400.0f,500.0f,0.1f},
-		{800.0f,500.0f,0.1f},
+		{0.0f,0.5f,0.0f},
+		{-0.5f,-0.5f,0.0f},
+		{0.5f,-0.5f,0.0f},
 	};
 	Vector3 screenVertics[3]{};
 	for (uint32_t i = 0; i < 3; i++) {
