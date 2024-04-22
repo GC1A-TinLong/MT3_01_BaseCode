@@ -12,26 +12,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Initialize(kWindowTitle, kWindowWidth, kWindowHeight);
 
 	Vector3 rotate{};
+	Vector3 cameraRotate{};
 	Vector3 translate{};
-	Vector3 cameraPosition{ 0.5f,0.5f,0.5f };
-	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
-	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, cameraPosition);
-	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
-	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
-	Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+	Vector3 cameraPosition{ 0.0f,0.0f,-5.0f };
 
 	const Vector3 kLocalVertics[3] = {
 		{0.0f,0.5f,0.0f},
-		{-0.5f,-0.5f,0.0f},
 		{0.5f,-0.5f,0.0f},
+		{-0.5f,-0.5f,0.0f},
 	};
-	Vector3 screenVertics[3]{};
-	for (uint32_t i = 0; i < 3; i++) {
-		Vector3 ndcVertex = Transform(kLocalVertics[i], worldViewProjectionMatrix);
-		screenVertics[i] = Transform(ndcVertex, viewportMatrix);
-	}
-
 
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
@@ -50,6 +39,35 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraPosition);
+		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
+		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
+		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+
+		rotate.y += 0.05f;
+		if (keys[DIK_A]) {
+			translate.x -= 0.1f;
+		}
+		else if (keys[DIK_D]) {
+			translate.x += 0.1f;
+		}
+		if (keys[DIK_W]) {
+			translate.z += 0.1f;
+		}
+		else if (keys[DIK_S]) {
+			translate.z -= 0.1f;
+		}
+
+
+		Vector3 screenVertics[3]{};
+		for (uint32_t i = 0; i < 3; i++) {
+			Vector3 ndcVertex = Transform(kLocalVertics[i], worldViewProjectionMatrix);
+			screenVertics[i] = Transform(ndcVertex, viewportMatrix);
+		}
+
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -59,7 +77,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		Novice::DrawTriangle(int(screenVertics[0].x), (int)screenVertics[0].y, int(screenVertics[1].x), int(screenVertics[1].y),
-			int(screenVertics[2].x), int(screenVertics[2].y), RED, kFillModeSolid);
+			int(screenVertics[2].x), int(screenVertics[2].y), 0x880000FF, kFillModeSolid);
 
 #ifdef _DEBUG
 		Novice::ScreenPrintf(0, 0, "0.x=%f", screenVertics[0].x);
