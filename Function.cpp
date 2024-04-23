@@ -300,44 +300,84 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 	return result;
 }
 
-void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix)
-{
-	const float kGridHalfWidth = 2.0f;	//Gridの半分の幅
-	const uint32_t kSubDivision = 11;	//分割数
-	const float kGridEveryLength = (kGridHalfWidth * 2.0f) / float(kSubDivision);//1つ分の長さ = 0.4
-
-	for (uint32_t xIndex = 0; xIndex < kSubDivision; xIndex++)
-	{
-		// -半分、+Gridの半分
-		float x = (xIndex * kGridEveryLength) - (((float)kSubDivision * (kGridEveryLength)) / 2.0f) + (kGridEveryLength / 2.0f);
-		Vector3 start = { x,-0.5f,0 };
-		Vector3 end = { x,0.5f,5.0f };
-
-		Vector3 ndcVertexStart = Transform(start, viewProjectionMatrix);
-		Vector3 screenStart = Transform(ndcVertexStart, viewportMatrix);
-		Vector3 ndcVertexEnd = Transform(end, viewProjectionMatrix);
-		Vector3 screenEnd = Transform(ndcVertexEnd, viewportMatrix);
-
-		Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, 0xAAAAAAFF);
-		if (xIndex == 5) {
-			Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, BLACK);
-		}
+//void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix)
+//{
+//	const float kGridHalfWidth = 2.0f;	//Gridの半分の幅
+//	const uint32_t kSubDivision = 10;	//分割数
+//	const float kGridEveryLength = (kGridHalfWidth * 2.0f) / float(kSubDivision);//1つ分の長さ = 0.4
+//
+//	//for (uint32_t xIndex = 0; xIndex < kSubDivision; xIndex++)
+//	//{
+//	//	// -半分、+Gridの半分
+//	//	float x = (xIndex * kGridEveryLength) - (((float)kSubDivision * (kGridEveryLength)) / 2.0f) + (kGridEveryLength / 2.0f);
+//	//	Vector3 start = { x,-0.5f,0 };
+//	//	Vector3 end = { x,0.5f,5.0f };
+//
+//	//	Vector3 ndcVertexStart = Transform(start, viewProjectionMatrix);
+//	//	Vector3 screenStart = Transform(ndcVertexStart, viewportMatrix);
+//	//	Vector3 ndcVertexEnd = Transform(end, viewProjectionMatrix);
+//	//	Vector3 screenEnd = Transform(ndcVertexEnd, viewportMatrix);
+//
+//	//	Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, 0xAAAAAAFF);
+//	//	if (xIndex == 5) {
+//	//		Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, BLACK);
+//	//	}
+//	//}
+//	for (uint32_t xIndex = 0; xIndex <= kSubDivision; xIndex++)
+//	{
+//		// -半分、+Gridの半分
+//		float x = -kGridHalfWidth + (xIndex * kGridEveryLength);
+//		Vector3 start = { x,0.0f,-kGridHalfWidth };
+//		Vector3 end = { x,0.0f,kGridHalfWidth };
+//
+//		Vector3 screenStart = Transform(Transform(start, viewProjectionMatrix), viewportMatrix);
+//		Vector3 screenEnd = Transform(Transform(end, viewProjectionMatrix), viewportMatrix);
+//
+//		Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, 0xAAAAAAFF);
+//		if (xIndex == 5) {
+//			Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, BLACK);
+//		}
+//	}
+//	for (uint32_t zIndex = 0; zIndex < kSubDivision; zIndex++)
+//	{
+//		// -半分、+Gridの半分
+//		float y = (zIndex * kGridEveryLength) - (((float)kSubDivision * (kGridEveryLength)) / 2.0f) + (kGridEveryLength / 2.0f);
+//		Vector3 start = { -0.5f,y,0 };
+//		Vector3 end = { 0.5f,y,20.0f };
+//
+//		Vector3 ndcVertexStart = Transform(start, viewProjectionMatrix);
+//		Vector3 screenStart = Transform(ndcVertexStart, viewportMatrix);
+//		Vector3 ndcVertexEnd = Transform(end, viewProjectionMatrix);
+//		Vector3 screenEnd = Transform(ndcVertexEnd, viewportMatrix);
+//
+//		Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, 0xAA0000FF);
+//		if (zIndex == 5) {
+//			Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, BLACK);
+//		}
+//	}
+//}
+void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
+	const float kGridHalfWidth = 2.0f;
+	const uint32_t kSubdivision = 10;
+	const float kGridEvery = (kGridHalfWidth * 2.0f) / float(kSubdivision);
+	for (uint32_t xIndex = 0; xIndex <= kSubdivision; ++xIndex) {
+		float x = -kGridHalfWidth + (xIndex * kGridEvery);
+		Vector3 start{ x, 0.0f, -kGridHalfWidth };
+		Vector3 end{ x, 0.0f, kGridHalfWidth };
+		Vector3 startScreen = Transform(Transform(start, viewProjectionMatrix), viewportMatrix);
+		Vector3 endScreen = Transform(Transform(end, viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(
+			int(startScreen.x), int(startScreen.y), int(endScreen.x), int(endScreen.y),
+			x == 0.0f ? BLACK : 0xAAAAAAFF);
 	}
-	for (uint32_t zIndex = 0; zIndex < kSubDivision; zIndex++)
-	{
-		// -半分、+Gridの半分
-		float y = (zIndex * kGridEveryLength) - (((float)kSubDivision * (kGridEveryLength)) / 2.0f) + (kGridEveryLength / 2.0f);
-		Vector3 start = { -0.5f,y,0 };
-		Vector3 end = { 0.5f,y,20.0f };
-
-		Vector3 ndcVertexStart = Transform(start, viewProjectionMatrix);
-		Vector3 screenStart = Transform(ndcVertexStart, viewportMatrix);
-		Vector3 ndcVertexEnd = Transform(end, viewProjectionMatrix);
-		Vector3 screenEnd = Transform(ndcVertexEnd, viewportMatrix);
-
-		Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, 0xAA0000FF);
-		if (zIndex == 5) {
-			Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, BLACK);
-		}
+	for (uint32_t zIndex = 0; zIndex <= kSubdivision; ++zIndex) {
+		float z = -kGridHalfWidth + (zIndex * kGridEvery);
+		Vector3 start{ -kGridHalfWidth, 0.0f, z };
+		Vector3 end{ kGridHalfWidth, 0.0f, z };
+		Vector3 startScreen = Transform(Transform(start, viewProjectionMatrix), viewportMatrix);
+		Vector3 endScreen = Transform(Transform(end, viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(
+			int(startScreen.x), int(startScreen.y), int(endScreen.x), int(endScreen.y),
+			z == 0.0f ? BLACK : 0xAAAAAAFF);
 	}
 }

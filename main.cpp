@@ -12,9 +12,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Novice::Initialize(kWindowTitle, kWindowWidth, kWindowHeight);
 
 	Vector3 rotate{};
-	Vector3 cameraRotate{};
+	Vector3 cameraRotate{0.26f,0,0};
 	Vector3 translate{ 0,0,0 };
-	Vector3 cameraPosition{ 0.0f,0.0f,-5.0f };
+	Vector3 cameraPosition{ 0.0f,1.9f,-6.8f };
 
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
