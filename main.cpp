@@ -118,16 +118,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		VectorScreenPrintf(0, kRowHeight * 0, cross, "       Cross");
 		Novice::ScreenPrintf(0, 20, "isFront = %f", isFront);
 
-#ifdef _DEBUG
-		/*Novice::ScreenPrintf(0, 0, "0.x=%f", screenVertics[0].x);
-		Novice::ScreenPrintf(0, kRowHeight, "0.y=%f", screenVertics[0].y);
-		Novice::ScreenPrintf(0, kRowHeight * 2, "1.x=%f", screenVertics[1].x);
-		Novice::ScreenPrintf(0, kRowHeight * 3, "1.y=%f", screenVertics[1].y);
-		Novice::ScreenPrintf(0, kRowHeight * 4, "2.x=%f", screenVertics[2].x);
-		Novice::ScreenPrintf(0, kRowHeight * 5, "2.y=%f", screenVertics[2].y);*/
-
-#endif // DEBUG
-
 		///
 		/// ↑描画処理ここまで
 		///
