@@ -17,9 +17,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraPosition{ 0.0f,0.0f,-5.0f };
 	int rotateReverse = 0;
 
-	Vector3 v1 = { 1.2f,-3.9f,2.5f };
-	Vector3 v2 = { 2.8f,0.4f,-1.3f };
+	Vector3 v1{};
+	Vector3 v2{};
 	Vector3 cross{};
+	float isFront = 0;
 
 	const Vector3 kLocalVertics[3] = {
 		{0.0f,0.5f,0.0f},
@@ -50,15 +51,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
-		cross = Cross(v1, v2);
 
 		if (rotateReverse == 0) {
-			rotate.y -= 0.1f;
+			rotate.y -= 0.08f;
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE])
 				rotateReverse = 1;
 		}
 		else if (rotateReverse == 1) {
-			rotate.y += 0.1f;
+			rotate.y += 0.08f;
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE])
 				rotateReverse = 0;
 		}
@@ -94,7 +94,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Vector3 ndcVertex = Transform(kLocalVertics[i], worldViewProjectionMatrix);
 			screenVertics[i] = Transform(ndcVertex, viewportMatrix);
 		}
-
+		v1.x = screenVertics[1].x - screenVertics[0].x;
+		v1.y = screenVertics[1].y - screenVertics[0].y;
+		v1.z = screenVertics[1].z - screenVertics[0].z;
+		v2.x = screenVertics[2].x - screenVertics[1].x;
+		v2.y = screenVertics[2].y - screenVertics[1].y;
+		v2.z = screenVertics[2].z - screenVertics[1].z;
+		cross = Cross(v1, v2);
+		isFront = Dot(cameraPosition, cross);
 
 		///
 		/// ↑更新処理ここまで
@@ -104,9 +111,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		Novice::DrawTriangle(int(screenVertics[0].x), (int)screenVertics[0].y, int(screenVertics[1].x), int(screenVertics[1].y),
-			int(screenVertics[2].x), int(screenVertics[2].y), 0xBB0000FF, kFillModeSolid);
-		VectorScreenPrintf(0, kRowHeight * 0, cross, "Cross");
+		if (isFront <= 0) {
+			Novice::DrawTriangle(int(screenVertics[0].x), (int)screenVertics[0].y, int(screenVertics[1].x), int(screenVertics[1].y),
+				int(screenVertics[2].x), int(screenVertics[2].y), 0xBB0000FF, kFillModeSolid);
+		}
+		VectorScreenPrintf(0, kRowHeight * 0, cross, "       Cross");
+		Novice::ScreenPrintf(0, 20, "isFront = %f", isFront);
 
 #ifdef _DEBUG
 		/*Novice::ScreenPrintf(0, 0, "0.x=%f", screenVertics[0].x);
