@@ -7,9 +7,14 @@ const char kWindowTitle[] = "GC2A_08_チョウ_テンロウ_AL3";
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
-	Novice::Initialize(kWindowTitle, 1280, 720);
+	const int kWindowWidth = 1280;
+	const int kWindowHeight = 720;
+	Novice::Initialize(kWindowTitle, kWindowWidth, kWindowHeight);
 
-	
+	Vector3 rotate{};
+	Vector3 cameraRotate{};
+	Vector3 translate{ 0,0,0 };
+	Vector3 cameraPosition{ 0.0f,0.0f,-5.0f };
 
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
@@ -28,6 +33,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraPosition);
+		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
+		Matrix4x4 viewProjectionMatrix = viewMatrix * projectionMatrix;
+		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
+		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -36,6 +49,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
+		DrawGrid(viewProjectionMatrix, viewportMatrix);
+
+#ifdef _DEBUG
+		
+#endif // _DEBUG
 
 
 		///

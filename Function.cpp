@@ -1,4 +1,4 @@
-#include "Function.h"
+﻿#include "Function.h"
 
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label)
 {
@@ -61,6 +61,11 @@ Vector3 Normailize(const Vector3& v)
 	result.y = v.y / Length(v);
 	result.z = v.z / Length(v);
 	return result;
+}
+
+Vector3 Cross(const Vector3& v1, const Vector3& v2)
+{
+	return { (v1.y * v2.z) - (v1.z * v2.y) , (v1.z * v2.x) - (v1.x * v2.z),(v1.x * v2.y) - (v1.y * v2.x) };
 }
 
 Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2)
@@ -204,7 +209,7 @@ Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
-Matrix4x4 MakeRotateXMatrix(float& radian)
+Matrix4x4 MakeRotateXMatrix(const float& radian)
 {
 	Matrix4x4 result{};
 	result.m[0][0] = 1.0f;
@@ -215,7 +220,7 @@ Matrix4x4 MakeRotateXMatrix(float& radian)
 	result.m[3][3] = 1.0f;
 	return result;
 }
-Matrix4x4 MakeRotateYMatrix(float& radian)
+Matrix4x4 MakeRotateYMatrix(const float& radian)
 {
 	Matrix4x4 result{};
 	result.m[0][0] = cosf(radian);
@@ -226,7 +231,7 @@ Matrix4x4 MakeRotateYMatrix(float& radian)
 	result.m[3][3] = 1.0f;
 	return result;
 }
-Matrix4x4 MakeRotateZMatrix(float& radian)
+Matrix4x4 MakeRotateZMatrix(const float& radian)
 {
 	Matrix4x4 result{};
 	result.m[0][0] = cosf(radian);
@@ -238,18 +243,22 @@ Matrix4x4 MakeRotateZMatrix(float& radian)
 	return result;
 }
 
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Matrix4x4& rotate, const Vector3& translate)
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate)
 {
 	Matrix4x4 result = MakeTranslateMatrix(translate);
-	result.m[0][0] = scale.x * rotate.m[0][0];
-	result.m[0][1] = scale.x * rotate.m[0][1];
-	result.m[0][2] = scale.x * rotate.m[0][2];
-	result.m[1][0] = scale.y * rotate.m[1][0];
-	result.m[1][1] = scale.y * rotate.m[1][1];
-	result.m[1][2] = scale.y * rotate.m[1][2];
-	result.m[2][0] = scale.z * rotate.m[2][0];
-	result.m[2][1] = scale.z * rotate.m[2][1];
-	result.m[2][2] = scale.z * rotate.m[2][2];
+	Matrix4x4 rotateXmatrix = MakeRotateXMatrix(rotate.x);
+	Matrix4x4 rotateYmatrix = MakeRotateYMatrix(rotate.y);
+	Matrix4x4 rotateZmatrix = MakeRotateZMatrix(rotate.z);
+	Matrix4x4 rotateXYZmatrix = rotateXmatrix * rotateYmatrix * rotateZmatrix;
+	result.m[0][0] = scale.x * rotateXYZmatrix.m[0][0];
+	result.m[0][1] = scale.x * rotateXYZmatrix.m[0][1];
+	result.m[0][2] = scale.x * rotateXYZmatrix.m[0][2];
+	result.m[1][0] = scale.y * rotateXYZmatrix.m[1][0];
+	result.m[1][1] = scale.y * rotateXYZmatrix.m[1][1];
+	result.m[1][2] = scale.y * rotateXYZmatrix.m[1][2];
+	result.m[2][0] = scale.z * rotateXYZmatrix.m[2][0];
+	result.m[2][1] = scale.z * rotateXYZmatrix.m[2][1];
+	result.m[2][2] = scale.z * rotateXYZmatrix.m[2][2];
 	return result;
 }
 
@@ -289,4 +298,46 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 	result.m[3][2] = minDepth;
 	result.m[3][3] = 1.0f;
 	return result;
+}
+
+void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix)
+{
+	const float kGridHalfWidth = 2.0f;	//Gridの半分の幅
+	const uint32_t kSubDivision = 11;	//分割数
+	const float kGridEveryLength = (kGridHalfWidth * 2.0f) / float(kSubDivision);//1つ分の長さ = 0.4
+
+	for (uint32_t xIndex = 0; xIndex < kSubDivision; xIndex++)
+	{
+		// -半分、+Gridの半分
+		float x = (xIndex * kGridEveryLength) - (((float)kSubDivision * (kGridEveryLength)) / 2.0f) + (kGridEveryLength / 2.0f);
+		Vector3 start = { x,-0.5f,0 };
+		Vector3 end = { x,0.5f,5.0f };
+
+		Vector3 ndcVertexStart = Transform(start, viewProjectionMatrix);
+		Vector3 screenStart = Transform(ndcVertexStart, viewportMatrix);
+		Vector3 ndcVertexEnd = Transform(end, viewProjectionMatrix);
+		Vector3 screenEnd = Transform(ndcVertexEnd, viewportMatrix);
+
+		Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, 0xAAAAAAFF);
+		if (xIndex == 5) {
+			Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, BLACK);
+		}
+	}
+	for (uint32_t zIndex = 0; zIndex < kSubDivision; zIndex++)
+	{
+		// -半分、+Gridの半分
+		float y = (zIndex * kGridEveryLength) - (((float)kSubDivision * (kGridEveryLength)) / 2.0f) + (kGridEveryLength / 2.0f);
+		Vector3 start = { -0.5f,y,0 };
+		Vector3 end = { 0.5f,y,20.0f };
+
+		Vector3 ndcVertexStart = Transform(start, viewProjectionMatrix);
+		Vector3 screenStart = Transform(ndcVertexStart, viewportMatrix);
+		Vector3 ndcVertexEnd = Transform(end, viewProjectionMatrix);
+		Vector3 screenEnd = Transform(ndcVertexEnd, viewportMatrix);
+
+		Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, 0xAA0000FF);
+		if (zIndex == 5) {
+			Novice::DrawLine((int)screenStart.x, (int)screenStart.y, (int)screenEnd.x, (int)screenEnd.y, BLACK);
+		}
+	}
 }
