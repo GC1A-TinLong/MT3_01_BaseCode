@@ -15,6 +15,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraRotate{};
 	Vector3 translate{};
 	Vector3 cameraPosition{ 0.0f,0.0f,-5.0f };
+	int rotateReverse = 0;
+
+	Vector3 v1 = { 1.2f,-3.9f,2.5f };
+	Vector3 v2 = { 2.8f,0.4f,-1.3f };
+	Vector3 cross{};
 
 	const Vector3 kLocalVertics[3] = {
 		{0.0f,0.5f,0.0f},
@@ -45,19 +50,42 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
 		Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+		cross = Cross(v1, v2);
 
-		rotate.y += 0.05f;
+		if (rotateReverse == 0) {
+			rotate.y -= 0.1f;
+			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE])
+				rotateReverse = 1;
+		}
+		else if (rotateReverse == 1) {
+			rotate.y += 0.1f;
+			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE])
+				rotateReverse = 0;
+		}
 		if (keys[DIK_A]) {
-			translate.x -= 0.1f;
+			translate.x -= 0.05f;
 		}
 		else if (keys[DIK_D]) {
-			translate.x += 0.1f;
+			translate.x += 0.05f;
 		}
 		if (keys[DIK_W]) {
-			translate.z += 0.1f;
+			translate.z += 0.05f;
 		}
 		else if (keys[DIK_S]) {
-			translate.z -= 0.1f;
+			translate.z -= 0.05f;
+		}
+		//Camera
+		if (keys[DIK_LEFTARROW]) {
+			cameraPosition.x -= 0.05f;
+		}
+		else if (keys[DIK_RIGHTARROW]) {
+			cameraPosition.x += 0.05f;
+		}
+		if (keys[DIK_UPARROW]) {
+			cameraPosition.y += 0.05f;
+		}
+		else if (keys[DIK_DOWNARROW]) {
+			cameraPosition.y -= 0.05f;
 		}
 
 
@@ -77,15 +105,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		Novice::DrawTriangle(int(screenVertics[0].x), (int)screenVertics[0].y, int(screenVertics[1].x), int(screenVertics[1].y),
-			int(screenVertics[2].x), int(screenVertics[2].y), 0x880000FF, kFillModeSolid);
+			int(screenVertics[2].x), int(screenVertics[2].y), 0xBB0000FF, kFillModeSolid);
+		VectorScreenPrintf(0, kRowHeight * 0, cross, "Cross");
 
 #ifdef _DEBUG
-		Novice::ScreenPrintf(0, 0, "0.x=%f", screenVertics[0].x);
+		/*Novice::ScreenPrintf(0, 0, "0.x=%f", screenVertics[0].x);
 		Novice::ScreenPrintf(0, kRowHeight, "0.y=%f", screenVertics[0].y);
 		Novice::ScreenPrintf(0, kRowHeight * 2, "1.x=%f", screenVertics[1].x);
 		Novice::ScreenPrintf(0, kRowHeight * 3, "1.y=%f", screenVertics[1].y);
 		Novice::ScreenPrintf(0, kRowHeight * 4, "2.x=%f", screenVertics[2].x);
-		Novice::ScreenPrintf(0, kRowHeight * 5, "2.y=%f", screenVertics[2].y);
+		Novice::ScreenPrintf(0, kRowHeight * 5, "2.y=%f", screenVertics[2].y);*/
 
 #endif // DEBUG
 

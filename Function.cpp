@@ -63,6 +63,11 @@ Vector3 Normailize(const Vector3& v)
 	return result;
 }
 
+Vector3 Cross(const Vector3& v1, const Vector3& v2)
+{
+	return { (v1.y * v2.z) - (v1.z * v2.y) , (v1.z * v2.x) - (v1.x * v2.z),(v1.x * v2.y) - (v1.y * v2.x) };
+}
+
 Matrix4x4 operator+(const Matrix4x4& m1, const Matrix4x4& m2)
 {
 	Matrix4x4 result{};

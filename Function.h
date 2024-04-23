@@ -19,6 +19,7 @@ Vector3 operator*(float scalar, const Vector3& v);
 float Dot(Vector3& v1, Vector3& v2);
 float Length(const Vector3& v);
 Vector3 Normailize(const Vector3& v);
+Vector3 Cross(const Vector3& v1, const Vector3& v2);
 
 struct Matrix4x4 {
 	float m[4][4];
