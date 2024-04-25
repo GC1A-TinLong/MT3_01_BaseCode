@@ -50,4 +50,4 @@ struct Sphere {
 	Vector3 center;
 	float radius;
 };
-void DrawSphere( Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);

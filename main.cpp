@@ -1,40 +1,39 @@
 #include <Novice.h>
 #include <Function.h>
+#include <imgui.h>
 
 const char kWindowTitle[] = "GC2A_08_チョウ_テンロウ_AL3";
 
 static void CameraControl(char* keys, Vector3& cameraPosition, Vector3& cameraRotate) {
-	if (cameraPosition.z < 0) {
-		if (keys[DIK_Q]) {
-			cameraPosition.y += 0.05f;
-		}
-		if (keys[DIK_E]) {
-			cameraPosition.y -= 0.05f;
-		}
-		if (keys[DIK_A]) {
-			cameraPosition.x -= 0.05f;
-		}
-		if (keys[DIK_D]) {
-			cameraPosition.x += 0.05f;
-		}
-		if (keys[DIK_W]) {
-			cameraPosition.z += 0.05f;
-		}
-		if (keys[DIK_S]) {
-			cameraPosition.z -= 0.05f;
-		}
-		if (keys[DIK_LSHIFT] && keys[DIK_W]) {
-			cameraRotate.x -= 0.02f;
-		}
-		if (keys[DIK_LSHIFT] && keys[DIK_S]) {
-			cameraRotate.x += 0.02f;
-		}
-		if (keys[DIK_LSHIFT] && keys[DIK_A]) {
-			cameraRotate.y -= 0.02f;
-		}
-		if (keys[DIK_LSHIFT] && keys[DIK_D]) {
-			cameraRotate.y += 0.02f;
-		}
+	if (keys[DIK_Q]) {
+		cameraPosition.y += 0.05f;
+	}
+	if (keys[DIK_E]) {
+		cameraPosition.y -= 0.05f;
+	}
+	if (keys[DIK_A]) {
+		cameraPosition.x -= 0.05f;
+	}
+	if (keys[DIK_D]) {
+		cameraPosition.x += 0.05f;
+	}
+	if (keys[DIK_W]) {
+		cameraPosition.z += 0.05f;
+	}
+	if (keys[DIK_S]) {
+		cameraPosition.z -= 0.05f;
+	}
+	if (keys[DIK_LSHIFT] && keys[DIK_W]) {
+		cameraRotate.x -= 0.02f;
+	}
+	if (keys[DIK_LSHIFT] && keys[DIK_S]) {
+		cameraRotate.x += 0.02f;
+	}
+	if (keys[DIK_LSHIFT] && keys[DIK_A]) {
+		cameraRotate.y -= 0.02f;
+	}
+	if (keys[DIK_LSHIFT] && keys[DIK_D]) {
+		cameraRotate.y += 0.02f;
 	}
 }
 
@@ -49,8 +48,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 rotate{};
 	Vector3 cameraRotate{ 0.26f,0,0 };
 	Vector3 translate{ 0,0,0 };
-	Vector3 cameraPosition{ 0.0f,2.0f,-6.8f };
-	Sphere sphere{};
+	Vector3 cameraPosition{ 0.0f,1.9f,-6.49f };
+	Sphere sphere = { {0,0,0},1.0f };
 	uint32_t color = BLACK;
 
 	// キー入力結果を受け取る箱
@@ -79,6 +78,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
 		CameraControl(keys, cameraPosition, cameraRotate);
+
+		ImGui::Begin("Window");
+		ImGui::DragFloat3("CameraTranslate", &cameraPosition.x, 0.01f);
+		ImGui::DragFloat3("CameraRotate", &cameraRotate.x, 0.01f);
+		ImGui::DragFloat3("SphereCenter", &sphere.center.x, 0.01f);
+		ImGui::DragFloat("SphereRadius", &sphere.radius, 0.01f);
+		ImGui::End();
 
 		///
 		/// ↑更新処理ここまで
