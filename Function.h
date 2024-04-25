@@ -2,6 +2,8 @@
 #include <Novice.h>
 #include <cmath>
 #include <assert.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 static const int kRowHeight = 20;
 static const int kColumnWidth = 60;
@@ -43,3 +45,9 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip
 Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
 
 void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix);
+
+struct Sphere {
+	Vector3 center;
+	float radius;
+};
+void DrawSphere( Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
