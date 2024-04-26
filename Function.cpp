@@ -341,8 +341,8 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
 {
 	const uint32_t kSubDivision = 32;//分割数
-	const float kLonEvery = 4.0f;//経度分割1つ分の角度
-	const float kLatEvery = 4.0f;//緯度分割1つ分の角度
+	const float kLonEvery = 1.0f;//経度分割1つ分の角度
+	const float kLatEvery = 1.0f;//緯度分割1つ分の角度
 	const float pi = (float)M_PI;
 	const float latD = pi / kSubDivision;
 	const float lonD = (2 * pi) / kSubDivision;
@@ -356,9 +356,9 @@ void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, con
 			//World座標系でのa,b,cを求める
 
 			Vector3 a, b, c;
-			a = { sphere.radius * (cosf(lat) * cosf(lon)),sphere.radius * (sinf(lat)),sphere.radius * (cosf(lat) * sinf(lon)) };
-			b = { cosf(lat + latD) * cosf(lon),sinf(lat + latD),cosf(lat + latD) * sinf(lon) };
-			c = { cosf(lat) * cosf(lon + lonD),sinf(lat),cosf(lat) * sinf(lon + lonD) };
+			a = { cosf(lat) * cosf(lon)		   + sphere.center.x,sinf(lat)		  + sphere.center.y,cosf(lat) * sinf(lon) + sphere.center.z };
+			b = { cosf(lat + latD) * cosf(lon) + sphere.center.x,sinf(lat + latD) + sphere.center.y,cosf(lat + latD) * sinf(lon) + sphere.center.z };
+			c = { cosf(lat) * cosf(lon + lonD) + sphere.center.x,sinf(lat)		  + sphere.center.y,cosf(lat) * sinf(lon + lonD) + sphere.center.z };
 			//a,b,cをScreen座標系まで変換
 			Vector3 screenA = Transform(Transform(a, viewProjectionMatrix), viewportMatrix);
 			Vector3 screenB = Transform(Transform(b, viewProjectionMatrix), viewportMatrix);

@@ -11,16 +11,16 @@ static void CameraControl(char* keys, Vector3& cameraPosition, Vector3& cameraRo
 	if (keys[DIK_E]) {
 		cameraPosition.y -= 0.05f;
 	}
-	if (keys[DIK_A]) {
+	if (keys[DIK_A] && !keys[DIK_LSHIFT]) {
 		cameraPosition.x -= 0.05f;
 	}
-	if (keys[DIK_D]) {
+	if (keys[DIK_D] && !keys[DIK_LSHIFT]) {
 		cameraPosition.x += 0.05f;
 	}
-	if (keys[DIK_W]) {
+	if (keys[DIK_W] && !keys[DIK_LSHIFT]) {
 		cameraPosition.z += 0.05f;
 	}
-	if (keys[DIK_S]) {
+	if (keys[DIK_S] && !keys[DIK_LSHIFT]) {
 		cameraPosition.z -= 0.05f;
 	}
 	if (keys[DIK_LSHIFT] && keys[DIK_W]) {
