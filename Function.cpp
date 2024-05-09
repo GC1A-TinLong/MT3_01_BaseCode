@@ -340,12 +340,10 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 
 void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
 {
-	const uint32_t kSubDivision = 32;//分割数
-	const float kLonEvery = 1.0f;//経度分割1つ分の角度
-	const float kLatEvery = 1.0f;//緯度分割1つ分の角度
 	const float pi = (float)M_PI;
-	const float latD = pi / kSubDivision;
-	const float lonD = (2 * pi) / kSubDivision;	
+	const uint32_t kSubDivision = 32;//分割数
+	const float kLonEvery = pi / kSubDivision;;//経度分割1つ分の角度
+	const float kLatEvery = (2 * pi) / kSubDivision;;//緯度分割1つ分の角度
 	//緯度の方向に分割 -π/2 ～ π/2
 	for (uint32_t latIndex = 0; latIndex < kSubDivision; latIndex++) {
 		float lat = (-pi / 2.0f) + (kLatEvery * latIndex);//現在の緯度
@@ -356,16 +354,19 @@ void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, con
 			//World座標系でのa,b,cを求める
 
 			Vector3 a, b, c;
-			a = { cosf(lat) * cosf(lon) + sphere.center.x,sinf(lat) + sphere.center.y,cosf(lat) * sinf(lon) + sphere.center.z };
-			b = { cosf(lat + latD) * cosf(lon) + sphere.center.x,sinf(lat + latD) + sphere.center.y,cosf(lat + latD) * sinf(lon) + sphere.center.z };
-			c = { cosf(lat) * cosf(lon + lonD) + sphere.center.x,sinf(lat) + sphere.center.y,cosf(lat) * sinf(lon + lonD) + sphere.center.z };
+			a = { sphere.radius * (cosf(lat) * cosf(lon) + sphere.center.x),sphere.radius * (sinf(lat) + sphere.center.y),
+				sphere.radius * ((cosf(lat) * sinf(lon) + sphere.center.z)) };
+			b = { sphere.radius*(cosf(lat + kLatEvery) * cosf(lon) + sphere.center.x),sphere.radius * (sinf(lat + kLatEvery) + sphere.center.y),
+				sphere.radius* (cosf(lat + kLatEvery) * sinf(lon) + sphere.center.z) };
+			c = { sphere.radius * (cosf(lat) * cosf(lon + kLonEvery) + sphere.center.x),sphere.radius * (sinf(lat) + sphere.center.y),
+				sphere.radius* (cosf(lat) * sinf(lon + kLonEvery) + sphere.center.z) };
 			//a,b,cをScreen座標系まで変換
 			Vector3 screenA = Transform(Transform(a, viewProjectionMatrix), viewportMatrix);
 			Vector3 screenB = Transform(Transform(b, viewProjectionMatrix), viewportMatrix);
 			Vector3 screenC = Transform(Transform(c, viewProjectionMatrix), viewportMatrix);
 			//ab,bcで線を引く
 			Novice::DrawLine(int(screenA.x), int(screenA.y), int(screenB.x), int(screenB.y), color);
-			Novice::DrawLine(int(screenB.x), int(screenB.y), int(screenC.x), int(screenC.y), color);
+			Novice::DrawLine(int(screenA.x), int(screenA.y), int(screenC.x), int(screenC.y), color);
 		}
 	}
 }
