@@ -345,10 +345,10 @@ void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, con
 	const float kLatEvery = 1.0f;//緯度分割1つ分の角度
 	const float pi = (float)M_PI;
 	const float latD = pi / kSubDivision;
-	const float lonD = (2 * pi) / kSubDivision;
+	const float lonD = (2 * pi) / kSubDivision;	
 	//緯度の方向に分割 -π/2 ～ π/2
 	for (uint32_t latIndex = 0; latIndex < kSubDivision; latIndex++) {
-		float lat = (pi / 2.0f) + kLatEvery * latIndex;//現在の緯度
+		float lat = (-pi / 2.0f) + (kLatEvery * latIndex);//現在の緯度
 		//経度の方向に分割 0～2π
 		for (uint32_t lonIndex = 0; lonIndex < kSubDivision; lonIndex++) {
 			float lon = lonIndex * kLonEvery;//現在の経度
@@ -356,9 +356,9 @@ void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, con
 			//World座標系でのa,b,cを求める
 
 			Vector3 a, b, c;
-			a = { cosf(lat) * cosf(lon)		   + sphere.center.x,sinf(lat)		  + sphere.center.y,cosf(lat) * sinf(lon) + sphere.center.z };
+			a = { cosf(lat) * cosf(lon) + sphere.center.x,sinf(lat) + sphere.center.y,cosf(lat) * sinf(lon) + sphere.center.z };
 			b = { cosf(lat + latD) * cosf(lon) + sphere.center.x,sinf(lat + latD) + sphere.center.y,cosf(lat + latD) * sinf(lon) + sphere.center.z };
-			c = { cosf(lat) * cosf(lon + lonD) + sphere.center.x,sinf(lat)		  + sphere.center.y,cosf(lat) * sinf(lon + lonD) + sphere.center.z };
+			c = { cosf(lat) * cosf(lon + lonD) + sphere.center.x,sinf(lat) + sphere.center.y,cosf(lat) * sinf(lon + lonD) + sphere.center.z };
 			//a,b,cをScreen座標系まで変換
 			Vector3 screenA = Transform(Transform(a, viewProjectionMatrix), viewportMatrix);
 			Vector3 screenB = Transform(Transform(b, viewProjectionMatrix), viewportMatrix);
